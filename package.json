@@ -2,8 +2,7 @@
   "name": "battleships-server",
   "version": "1.0.0",
   "author": "mail@artik.me",
-  "main": "build/index",
-  "types": "build/index",
+  "main": "index.js",
   "license": "MIT",
   "scripts": {
     "start": "node .",
