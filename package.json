@@ -1,11 +1,12 @@
 {
-  "name": "nodejs-express",
+  "name": "battleships-server",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
     "express": "^4.16.4",
-    "helmet": "^3.16.0"
+    "helmet": "^3.16.0",
+    "ws": "^6.2.1"
   },
   "scripts": {
     "start": "node ."

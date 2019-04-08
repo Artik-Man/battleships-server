@@ -1,0 +1,52 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Test</title>
+</head>
+
+<body>
+    <script>
+        (() => {
+            var urls = [
+                "ws://localhost:5000",
+                "ws://localhost:5000/1"
+            ];
+
+            var messages = [
+                '',
+                '[1, "hell',
+                JSON.stringify('[1, "Hello"]')
+            ];
+
+            function connection(url, callback) {
+                var socket = new WebSocket(url);
+                console.log(url, socket);
+                socket.onopen = () => {
+                    messages.forEach(mess => {
+                        console.log('send message: ' + mess);
+                        socket.send(mess);
+                    });
+                    socket.close();
+                };
+                socket.onclose = callback;
+            }
+
+            function iteration(callback) {
+                const url = urls.shift();
+                if (url) {
+                    connection(url, iteration)
+                }
+            }
+
+            iteration(() => {
+                console.log('end');
+            })
+
+        })()
+    </script>
+</body>
+
+</html>
