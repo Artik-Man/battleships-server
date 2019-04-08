@@ -10,40 +10,28 @@
 <body>
     <script>
         (() => {
-            var urls = [
-                "ws://localhost:5000",
-                "ws://localhost:5000/1"
-            ];
 
-            var messages = [
-                '',
-                '[1, "hell',
-                JSON.stringify('[1, "Hello"]')
-            ];
-
-            function connection(url, callback) {
-                var socket = new WebSocket(url);
-                console.log(url, socket);
+            function connection(from, to) {
+                var socket = new WebSocket('ws://localhost:3605/' + from);
                 socket.onopen = () => {
-                    messages.forEach(mess => {
-                        console.log('send message: ' + mess);
-                        socket.send(mess);
-                    });
-                    socket.close();
+                    setInterval(() => {
+                        const data = Math.floor(Math.random() * 100);
+                        const message = { from, to, data };
+                        console.log('[send] User ' + from, message);
+                        socket.send(JSON.stringify(message));
+                    }, 1000);
                 };
-                socket.onclose = callback;
-            }
-
-            function iteration(callback) {
-                const url = urls.shift();
-                if (url) {
-                    connection(url, iteration)
+                socket.onmessage = (mess) => {
+                    console.log('[resp] User ' + from, JSON.parse(mess.data));
                 }
+                return socket;
             }
 
-            iteration(() => {
-                console.log('end');
-            })
+            var connection1 = connection(1, 2);
+            setTimeout(() => {
+                var connection2 = connection(2, 1);
+                console.log(connection1, connection2);
+            }, 500);
 
         })()
     </script>
