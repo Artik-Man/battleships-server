@@ -10,29 +10,21 @@
 <body>
     <script>
         (() => {
-
-            function connection(from, to) {
+            function createConnection(from, to, data) {
                 var socket = new WebSocket('ws://localhost:3605/' + from);
-                socket.onopen = () => {
-                    setInterval(() => {
-                        const data = Math.floor(Math.random() * 100);
-                        const message = { from, to, data };
-                        console.log('[send] User ' + from, message);
-                        socket.send(JSON.stringify(message));
-                    }, 1000);
-                };
-                socket.onmessage = (mess) => {
-                    console.log('[resp] User ' + from, JSON.parse(mess.data));
+                socket.onopen = function () {
+                    socket.send(JSON.stringify({ to: to, data: data }));
+                }
+                socket.onmessage = function (message) {
+                    console.log(from, message.data);
                 }
                 return socket;
             }
 
-            var connection1 = connection(1, 2);
-            setTimeout(() => {
-                var connection2 = connection(2, 1);
-                console.log(connection1, connection2);
-            }, 500);
+            var socket1 = createConnection('1', '2', 'hello, 2');
+            var socket2 = createConnection('2', '1', 'hello, 1');
 
+            console.log(socket1, socket2);
         })()
     </script>
 </body>

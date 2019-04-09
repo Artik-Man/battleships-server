@@ -1,10 +1,10 @@
-import { Server } from 'ws';
-import { IncomingMessage } from 'http';
+import express from 'express';
+import expressWs from 'express-ws';
 
 const port = process.env.PORT || 3605;
 
-const webSockets: {
-    [client: string]: WebSocket
+const connections: {
+    [client: string]: any //WebSocket
 } = {};
 
 interface Message {
@@ -13,45 +13,59 @@ interface Message {
     data: string;
 }
 
-const parseData = (message: MessageEvent): Message => {
+const parseData = (message: any, from: string = null): Message => {
     try {
-        const d = JSON.parse(message.data);
-        const from = d.from;
-        const to = d.to;
-        const data = d.data;
-        return { from, to, data }
+        const d = JSON.parse(message);
+        const to = d.to || null;
+        const data = d.data || null;
+        if (from !== null && to !== null && data !== null) {
+            return { from, to, data }
+        }
+        return null;
     } catch (e) {
         return null;
     }
 }
 
-const webSocketServer: Server = new Server({ port: port });
+const app = expressWs(express()).app;
 
-webSocketServer.on('connection', (webSocket: WebSocket, req: IncomingMessage) => {
-    var userID = req.url.slice(1);
+app.param('id', (req, res, next, id) => {
+    req['id'] = id || '';
+    return next();
+});
+
+app.get('/:id', (req, res, next) => {
+    console.log('hello', req['id']);
+    res.end();
+    next();
+});
+
+app.ws('/:id', (ws, req, next) => {
+    const userID: string = req['id'] || '';
     if (!userID.length) {
-        webSocket.close();
-        console.warn('can not connect');
+        ws.close();
+        console.warn('Can not connect');
         return;
     }
-    webSockets[userID] = webSocket
-    console.log('connected: ' + userID)
-
-    webSocket.onmessage = message => {
-        console.log('received from ' + userID + ': ' + JSON.stringify(message.data))
-        const msg = parseData(message);
-        if (msg && webSockets[msg.to]) {
-            webSockets[msg.to].send(JSON.stringify(msg))
-            console.log('send to ' + msg.to + ': ' + JSON.stringify(msg));
+    connections[userID] = ws;
+    console.log('connected: ' + userID);
+    ws.onmessage = message => {
+        const msg = parseData(message.data, userID);
+        console.log(msg);
+        if (msg && connections[msg.to]) {
+            connections[msg.to].send(JSON.stringify(msg))
+            console.log('Send message: ' + JSON.stringify(msg));
         }
-    }
-
-    webSocket.onclose = () => {
+    };
+    ws.onclose = () => {
         try {
-            delete webSockets[userID]
+            delete connections[userID]
             console.log('close connection: ' + userID)
         } catch (e) {
             console.warn(e)
         }
     }
-})
+    next();
+});
+
+app.listen(port)
