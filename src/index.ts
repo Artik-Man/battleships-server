@@ -2,12 +2,6 @@ import express from 'express';
 import expressWs from 'express-ws';
 import helmet from 'helmet';
 
-const port = process.env.PORT || 443;
-
-const connections: {
-    [client: string]: any //WebSocket
-} = {};
-
 interface Message {
     from: string;
     to: string;
@@ -28,8 +22,11 @@ const parseData = (message: any, from: string = null): Message => {
     }
 }
 
-const app = expressWs(express()).app;
+const connections: {
+    [client: string]: any //WebSocket
+} = {};
 
+const app = expressWs(express()).app;
 app.use(helmet())
 
 app.param('id', (req, res, next, id) => {
@@ -38,13 +35,12 @@ app.param('id', (req, res, next, id) => {
 });
 
 app.get('*', (req, res, next) => {
-
     res.set('Content-Type', 'text/html')
         .status(200)
         .send(`
             <h2>WebSockets Post</h2>
             <ol>
-                <li>Connect to wss://${location.host}:${port}/[user_id]</li>
+                <li>Connect to wss://[host]:[port]/[user_id]</li>
                 <li>Send message <code>{ to: [some_user_id], data: [some_data] }</code></li>
             </ol>
         `);
@@ -80,6 +76,6 @@ app.ws('/:id', (ws, req, next) => {
     next();
 });
 
-app.listen(port)
-
-module.exports = app
+app.listen(null)
+console.log(app)
+module.exports = app;
