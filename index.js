@@ -29,16 +29,16 @@ app.param('id', (req, res, next, id) => {
     return next();
 });
 app.get('*', (req, res, next) => {
-    const address = server.address();
+    const port = JSON.stringify(server.address()['port']);
     res.set('Content-Type', 'text/html')
         .status(200)
         .send(`
-            <h2>WebSockets Post</h2>
+            <h1>WebSockets Post</h1>
             <ol>
-                <li>Connect to wss://[host]:[port]/[user_id]</li>
+                <li>Connect to wss://<span id="host">[host]</span>:${port}/[user_id]</li>
                 <li>Send message <code>{ to: [some_user_id], data: [some_data] }</code></li>
             </ol>
-            ${address}; ${JSON.stringify(address)}
+            <script>document.getElementById('host').innerHTML = location.host</script>
         `);
     res.end();
     next();
