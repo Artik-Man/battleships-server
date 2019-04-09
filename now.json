@@ -1,1 +1,10 @@
-{"version":2,"name":"battleships-server","builds":[{"src":"**/*.js","use":"@now/node"}]}
+{
+    "version": 2,
+    "name": "battleships-server",
+    "builds": [
+        {
+            "src": "index.js",
+            "use": "@now/node"
+        }
+    ]
+}

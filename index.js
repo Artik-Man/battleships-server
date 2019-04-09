@@ -70,3 +70,4 @@ app.ws('/:id', (ws, req, next) => {
     next();
 });
 app.listen(port);
+module.exports = app;

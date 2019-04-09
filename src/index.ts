@@ -81,3 +81,5 @@ app.ws('/:id', (ws, req, next) => {
 });
 
 app.listen(port)
+
+module.exports = app
