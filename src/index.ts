@@ -27,7 +27,7 @@ const parseData = (message: any, from: string = null): Message => {
 }
 
 const connections: {
-    [client: string]: any //WebSocket
+    [client: string]: WebSocket
 } = {};
 
 app.use(helmet())
@@ -37,10 +37,22 @@ app.param('id', function (req, res, next, id) {
     return next();
 });
 
+app.get('/info', function (req, res, next) {
+    const port = JSON.stringify(server.address()['port']);
+    res.set('Content-Type', 'application/json')
+        .status(200)
+        .send(JSON.stringify({
+            port: port
+        }))
+        .end();
+    next();
+});
+
 app.get('/', function (req, res, next) {
     const port = JSON.stringify(server.address()['port']);
     res.set('Content-Type', 'text/html')
         .status(200)
+        // TODO: move into html file
         .send(`
             <h1>WebSockets Post</h1>
             <ol>
@@ -66,8 +78,8 @@ app.get('/', function (req, res, next) {
                 }
                 socket1.onopen=function(){socket1.send(testmessage)}
             </script>
-        `);
-    res.end();
+        `)
+        .end();
     next();
 });
 
@@ -87,6 +99,12 @@ app.ws('/:id', function (ws, req, next) {
         if (msg && connections[msg.to]) {
             connections[msg.to].send(JSON.stringify(msg))
             console.log('Send message: ' + JSON.stringify(msg));
+        } else if (msg) {
+            setTimeout(() => {
+                connections[userID].send(JSON.stringify({ ...msg, error: 'Connection not found: ' + msg.to }))
+            }, 1000);
+        } else {
+            connections[userID].send(JSON.stringify({ error: 'Parse error' }));
         }
     });
 

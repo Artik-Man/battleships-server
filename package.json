@@ -1,5 +1,5 @@
 {
-  "name": "battleships-server",
+  "name": "ws-post-server",
   "version": "1.0.0",
   "author": "mail@artik.me",
   "main": "index.js",

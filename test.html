@@ -1,32 +1,39 @@
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>WebSockets Post</title>
+  </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Test</title>
-</head>
-
-<body>
+  <body>
+    <h1>WebSockets Post</h1>
+    <ol>
+      <li>Connect to wss://<span id="host">[host]</span>:[port]/[user_id]</li>
+      <li>
+        Send message <code>{ to: [some_user_id], data: [some_data] }</code>
+      </li>
+    </ol>
+    <span id="test"></span>
     <script>
-        (() => {
-            function createConnection(from, to, data) {
-                var socket = new WebSocket('ws://localhost:3605/' + from);
-                socket.onopen = function () {
-                    socket.send(JSON.stringify({ to: to, data: data }));
-                }
-                socket.onmessage = function (message) {
-                    console.log(from, message.data);
-                }
-                return socket;
-            }
-
-            var socket1 = createConnection('1', '2', 'hello, 2');
-            var socket2 = createConnection('2', '1', 'hello, 1');
-
-            console.log(socket1, socket2);
-        })()
+      document.getElementById('host').innerHTML = location.host;
+      const protocol = location.protocol.replace('http', 'ws');
+      const testmessage = JSON.stringify({ from: '1', to: '2', data: 'ololo' });
+      const socket1 = new WebSocket(protocol + '//' + location.host + '/1');
+      const socket2 = new WebSocket(protocol + '//' + location.host + '/2');
+      socket2.onmessage = function(message) {
+        if (testmessage == message.data) {
+          document.getElementById('test').innerHTML = 'All ok';
+        } else {
+          console.log(message);
+          document.getElementById('test').innerHTML = 'Something wrong...';
+        }
+        socket1.close();
+        socket2.close();
+      };
+      socket1.onopen = function() {
+        socket1.send(testmessage);
+      };
     </script>
-</body>
-
+  </body>
 </html>

@@ -25,6 +25,16 @@ app.param('id', function (req, res, next, id) {
     req['id'] = id || '';
     return next();
 });
+app.get('/info', function (req, res, next) {
+    const port = JSON.stringify(server.address()['port']);
+    res.set('Content-Type', 'application/json')
+        .status(200)
+        .send(JSON.stringify({
+        port: port
+    }))
+        .end();
+    next();
+});
 app.get('/', function (req, res, next) {
     const port = JSON.stringify(server.address()['port']);
     res.set('Content-Type', 'text/html')
@@ -54,8 +64,8 @@ app.get('/', function (req, res, next) {
                 }
                 socket1.onopen=function(){socket1.send(testmessage)}
             </script>
-        `);
-    res.end();
+        `)
+        .end();
     next();
 });
 app.ws('/:id', function (ws, req, next) {
@@ -73,6 +83,14 @@ app.ws('/:id', function (ws, req, next) {
         if (msg && connections[msg.to]) {
             connections[msg.to].send(JSON.stringify(msg));
             console.log('Send message: ' + JSON.stringify(msg));
+        }
+        else if (msg) {
+            setTimeout(() => {
+                connections[userID].send(JSON.stringify(Object.assign({}, msg, { error: 'Connection not found: ' + msg.to })));
+            }, 1000);
+        }
+        else {
+            connections[userID].send(JSON.stringify({ error: 'Parse error' }));
         }
     });
     ws.on('close', function (msg) {
