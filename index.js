@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const express_ws_1 = __importDefault(require("express-ws"));
 const helmet_1 = __importDefault(require("helmet"));
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 443;
 const connections = {};
 const parseData = (message, from = null) => {
     try {

@@ -2,7 +2,7 @@ import express from 'express';
 import expressWs from 'express-ws';
 import helmet from 'helmet';
 
-const port = process.env.PORT || 80;
+const port = process.env.PORT || 443;
 
 const connections: {
     [client: string]: any //WebSocket
