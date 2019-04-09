@@ -22,7 +22,7 @@ const parseData = (message, from = null) => {
 };
 const connections = {};
 const app = express_ws_1.default(express_1.default()).app;
-const server = app.listen(null);
+const server = app.listen(process.env.PORT || null);
 app.use(helmet_1.default());
 app.param('id', (req, res, next, id) => {
     req['id'] = id || '';
