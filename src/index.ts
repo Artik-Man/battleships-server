@@ -1,5 +1,6 @@
 import express from 'express';
 import expressWs from 'express-ws';
+import helmet from 'helmet';
 
 const port = process.env.PORT || 3605;
 
@@ -29,13 +30,24 @@ const parseData = (message: any, from: string = null): Message => {
 
 const app = expressWs(express()).app;
 
+app.use(helmet())
+
 app.param('id', (req, res, next, id) => {
     req['id'] = id || '';
     return next();
 });
 
-app.get('/:id', (req, res, next) => {
-    console.log('hello', req['id']);
+app.get('*', (req, res, next) => {
+
+    res.set('Content-Type', 'text/html')
+        .status(200)
+        .send(`
+            <h2>WebSockets Post</h2>
+            <ol>
+                <li>Connect to [domain]:${port}/[user_id]</li>
+                <li>Send message <code>{ to: [some_user_id], data: [some_data] }</code></li>
+            </ol>
+        `);
     res.end();
     next();
 });
