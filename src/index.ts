@@ -27,6 +27,8 @@ const connections: {
 } = {};
 
 const app = expressWs(express()).app;
+const server = app.listen(null)
+
 app.use(helmet())
 
 app.param('id', (req, res, next, id) => {
@@ -35,6 +37,7 @@ app.param('id', (req, res, next, id) => {
 });
 
 app.get('*', (req, res, next) => {
+    const address = server.address();
     res.set('Content-Type', 'text/html')
         .status(200)
         .send(`
@@ -43,6 +46,7 @@ app.get('*', (req, res, next) => {
                 <li>Connect to wss://[host]:[port]/[user_id]</li>
                 <li>Send message <code>{ to: [some_user_id], data: [some_data] }</code></li>
             </ol>
+            ${address}; ${JSON.stringify(address)}
         `);
     res.end();
     next();
@@ -76,6 +80,5 @@ app.ws('/:id', (ws, req, next) => {
     next();
 });
 
-const server = app.listen(null)
 console.log(server.address())
 module.exports = app;

@@ -22,12 +22,14 @@ const parseData = (message, from = null) => {
 };
 const connections = {};
 const app = express_ws_1.default(express_1.default()).app;
+const server = app.listen(null);
 app.use(helmet_1.default());
 app.param('id', (req, res, next, id) => {
     req['id'] = id || '';
     return next();
 });
 app.get('*', (req, res, next) => {
+    const address = server.address();
     res.set('Content-Type', 'text/html')
         .status(200)
         .send(`
@@ -36,6 +38,7 @@ app.get('*', (req, res, next) => {
                 <li>Connect to wss://[host]:[port]/[user_id]</li>
                 <li>Send message <code>{ to: [some_user_id], data: [some_data] }</code></li>
             </ol>
+            ${address}; ${JSON.stringify(address)}
         `);
     res.end();
     next();
@@ -68,6 +71,5 @@ app.ws('/:id', (ws, req, next) => {
     };
     next();
 });
-const server = app.listen(null);
 console.log(server.address());
 module.exports = app;
