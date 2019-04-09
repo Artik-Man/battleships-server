@@ -27,7 +27,7 @@ const connections: {
 } = {};
 
 const app = expressWs(express()).app;
-const server = app.listen(null)
+const server = app.listen(process.env.PORT || null)
 
 app.use(helmet())
 

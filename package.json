@@ -5,7 +5,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node .",
+    "start": "tsc && node index.js",
     "tsc": "tsc",
     "serve": "npm run live",
     "live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
