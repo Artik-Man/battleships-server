@@ -50,10 +50,10 @@ app.get('/', function (req, res, next) {
             <span id="test"></span>
             <script>
                 document.getElementById('host').innerHTML = location.host;
-
+                const protocol = location.protocol==='https'?'wss':'ws';
                 const testmessage = JSON.stringify({from:'1',to:'2',data:'ololo'});
-                const socket1 = new WebSocket('ws://'+location.host+'/1');
-                const socket2 = new WebSocket('ws://'+location.host+'/2');
+                const socket1 = new WebSocket(protocol+'://'+location.host+'/1');
+                const socket2 = new WebSocket(protocol+'://'+location.host+'/2');
                 socket2.onmessage = function(message){
                     if(testmessage==message.data){
                         document.getElementById('test').innerHTML = 'All ok';
