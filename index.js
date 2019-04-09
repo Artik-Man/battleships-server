@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const express_ws_1 = __importDefault(require("express-ws"));
 const helmet_1 = __importDefault(require("helmet"));
-const port = process.env.PORT || 3605;
+const port = process.env.PORT || 80;
 const connections = {};
 const parseData = (message, from = null) => {
     try {
@@ -34,7 +34,7 @@ app.get('*', (req, res, next) => {
         .send(`
             <h2>WebSockets Post</h2>
             <ol>
-                <li>Connect to [domain]:${port}/[user_id]</li>
+                <li>Connect to wss://${location.host}:${port}/[user_id]</li>
                 <li>Send message <code>{ to: [some_user_id], data: [some_data] }</code></li>
             </ol>
         `);

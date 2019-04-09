@@ -2,7 +2,7 @@ import express from 'express';
 import expressWs from 'express-ws';
 import helmet from 'helmet';
 
-const port = process.env.PORT || 3605;
+const port = process.env.PORT || 80;
 
 const connections: {
     [client: string]: any //WebSocket
@@ -44,7 +44,7 @@ app.get('*', (req, res, next) => {
         .send(`
             <h2>WebSockets Post</h2>
             <ol>
-                <li>Connect to [domain]:${port}/[user_id]</li>
+                <li>Connect to wss://${location.host}:${port}/[user_id]</li>
                 <li>Send message <code>{ to: [some_user_id], data: [some_data] }</code></li>
             </ol>
         `);
