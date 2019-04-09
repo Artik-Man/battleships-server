@@ -68,6 +68,6 @@ app.ws('/:id', (ws, req, next) => {
     };
     next();
 });
-app.listen(null);
-console.log(app);
+const server = app.listen(null);
+console.log(server.address());
 module.exports = app;
