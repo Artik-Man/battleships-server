@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/vs.min.css">
+    <style>
+        body {
+            padding: 5vh 10vw;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/javascript.min.js"></script>
+    <script>
+        (() => {
+            const protocol = location.protocol.replace('http', 'ws');
+
+            async function setAddress() {
+                document.getElementById('protocol').innerHTML = protocol;
+                document.getElementById('host').innerHTML = location.hostname;
+                document.getElementById('port').innerHTML = (await fetch('/info').then(resp => resp.json())).port;
+            }
+
+            function checkWS() {
+                const testHtml = document.getElementById('test');
+                const testmessage = JSON.stringify({ from: '1', to: '2', data: 'ping' });
+                const socket1 = new WebSocket(protocol + '//' + location.host + '/1');
+                const socket2 = new WebSocket(protocol + '//' + location.host + '/2');
+                let open = 0;
+                const timeout = setTimeout(() => {
+                    testHtml.innerHTML = 'Connection timeout';
+                }, 30000);
+                function onopen() {
+                    open++;
+                    if (open === 2) {
+                        socket2.onmessage = function (message) {
+                            if (testmessage == message.data) {
+                                testHtml.innerHTML = 'Server works ok';
+                                clearTimeout(timeout);
+                            } else {
+                                console.log(message);
+                                testHtml.innerHTML = 'Something wrong...';
+                                clearTimeout(timeout);
+                            }
+                            socket1.close();
+                            socket2.close();
+                        };
+                        socket1.send(testmessage);
+                    }
+                }
+                socket1.onopen = onopen;
+                socket2.onopen = onopen;
+                function onerror() {
+                    testHtml.innerHTML = 'Something wrong...';
+                    clearTimeout(timeout);
+                }
+                socket1.onerror = onerror;
+                socket2.onerror = onerror;
+            }
+
+            document.addEventListener('DOMContentLoaded', (event) => {
+                const h1 = document.querySelector('h1');
+                const info = document.querySelector('#info');
+                document.body.insertBefore(h1, info);
+                setAddress();
+                checkWS();
+                document.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightBlock(block);
+                });
+            });
+        })();
+    </script>
+</head>
+
+<body class="markdown-body">
+    <p id="info">
+        Current address: <span id="protocol">wss:</span>//<span id="host">[host]</span>:<span id="port">[port]</span>/
+        <br>
+        <span id="test">Check server...</span>
+    </p>

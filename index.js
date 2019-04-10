@@ -1,95 +1,82 @@
 "use strict";
+const PARAMS = {
+    MAX_CLIENTS: 100
+};
+
 const express = require('express');
 const expressWS = require('express-ws');
 const helmet = require('helmet');
+const path = require('path');
+const showdown = require('showdown');
+const fs = require('fs');
+
+showdown.setFlavor('github');
+const converter = new showdown.Converter();
 const expressWs = expressWS(express());
 const app = expressWs.app;
 const server = app.listen(process.env.PORT || null);
-const parseData = (message, from = null) => {
+const port = JSON.stringify(server.address()['port']);
+const connections = {};
+console.log('Server running on port: ' + port);
+
+const parseData = (message, from) => {
     try {
         const d = JSON.parse(message);
         const to = d.to || null;
         const data = d.data || null;
-        if (from !== null && to !== null && data !== null) {
+        if (to !== null && data !== null) {
             return { from, to, data };
         }
         return null;
-    }
-    catch (e) {
+    } catch (e) {
         return null;
     }
 };
-const connections = {};
+
 app.use(helmet());
+
 app.param('id', function (req, res, next, id) {
     req['id'] = id || '';
     return next();
 });
+
 app.get('/info', function (req, res, next) {
-    const port = JSON.stringify(server.address()['port']);
-    res.set('Content-Type', 'application/json')
-        .status(200)
-        .send(JSON.stringify({
-        port: port
-    }))
-        .end();
+    res.json({ port: port });
     next();
 });
+
 app.get('/', function (req, res, next) {
-    const port = JSON.stringify(server.address()['port']);
-    res.set('Content-Type', 'text/html')
-        .status(200)
-        .send(`
-            <h1>WebSockets Post</h1>
-            <ol>
-                <li>Connect to wss://<span id="host">[host]</span>:${port}/[user_id]</li>
-                <li>Send message <code>{ to: [some_user_id], data: [some_data] }</code></li>
-            </ol>
-            <span id="test"></span>
-            <script>
-                document.getElementById('host').innerHTML = location.host;
-                const protocol = location.protocol.replace('http','ws');
-                const testmessage = JSON.stringify({from:'1',to:'2',data:'ololo'});
-                const socket1 = new WebSocket(protocol+'//'+location.host+'/1');
-                const socket2 = new WebSocket(protocol+'//'+location.host+'/2');
-                socket2.onmessage = function(message){
-                    if(testmessage==message.data){
-                        document.getElementById('test').innerHTML = 'All ok';
-                    }else{
-                        console.log(message)
-                        document.getElementById('test').innerHTML = 'Something wrong...';
-                    }
-                    socket1.close();
-                    socket2.close();
-                }
-                socket1.onopen=function(){socket1.send(testmessage)}
-            </script>
-        `)
-        .end();
-    next();
+    fs.readFile(__dirname + '/README.md', 'utf8', function (err, text) {
+        const container = fs.readFileSync(__dirname + '/index.html');
+        const html = converter.makeHtml(text);
+        res.set('Content-Type', 'text/html')
+            .status(200)
+            .send(container + html + '</body></html>')
+            .end();
+        next();
+    });
 });
+
 app.ws('/:id', function (ws, req, next) {
     const userID = req['id'] || '';
-    if (!userID.length) {
-        ws.close();
+    if (!userID.length || connections[userID] || Object.keys(connections).length > PARAMS.MAX_CLIENTS) {
+        ws.send(JSON.stringify({ error: 'Can not connect' }));
         console.warn('Can not connect');
+        ws.close();
         return;
     }
     connections[userID] = ws;
     console.log('Connected: ' + userID);
     ws.on('message', function (message) {
         const msg = parseData(message, userID);
-        console.log(msg);
         if (msg && connections[msg.to]) {
             connections[msg.to].send(JSON.stringify(msg));
             console.log('Send message: ' + JSON.stringify(msg));
-        }
-        else if (msg) {
+        } else if (msg) {
             setTimeout(() => {
                 connections[userID].send(JSON.stringify(Object.assign({}, msg, { error: 'Connection not found: ' + msg.to })));
             }, 1000);
-        }
-        else {
+        } else {
             connections[userID].send(JSON.stringify({ error: 'Parse error' }));
         }
     });
@@ -99,4 +86,5 @@ app.ws('/:id', function (ws, req, next) {
     });
     next();
 });
+
 module.exports = app;

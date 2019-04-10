@@ -9,11 +9,11 @@ https://github.com/Artik-Man/ws-post-server
 
 ## Connection
 1. Create connection to server
-```JavaScript
+```javascript
 const socket = new WebSocket('wss://[HOST]:[PORT]/[USER]');
 ```
 2. Send message
-```JavaScript
+```javascript
 const message = JSON.stringify({
     to:   SOME_USER,
     data: DATA
@@ -22,7 +22,7 @@ socket.send(message);
 ```
 
 ## Simple chat
-```JavaScript
+```javascript
 const socket = new WebSocket('wss://[HOST]:[PORT]/[USER1]');
 
 socket.onmessage = function(resp) {
@@ -34,15 +34,15 @@ socket.onmessage = function(resp) {
     }
 }
 
-function send(data){
+function send(user, data){
     const message = {
-        to:   USER2,
+        to: user,
         data: data
     };
     socket.send(JSON.stringify(message));
 }
 
-send(DATA);
+send(USER2, DATA);
 ```
 
 ## Additionals
