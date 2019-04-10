@@ -48,7 +48,7 @@ send(USER2, DATA);
 ## Additionals
 1. `GET /` 
 
-Response:[ HTML ] docs and autotest
+Response: [ HTML ] docs and autotest
 
 2. `GET /info`
 

@@ -1,0 +1,66 @@
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/javascript.min.js"></script>
+<script>
+    (() => {
+        const protocol = location.protocol.replace('http', 'ws');
+
+        async function setAddress() {
+            document.getElementById('protocol').innerHTML = protocol;
+            document.getElementById('host').innerHTML = location.hostname;
+            document.getElementById('port').innerHTML = (await fetch('/info').then(resp => resp.json())).port;
+        }
+
+        function checkWS() {
+            const testHtml = document.getElementById('test');
+            const testmessage = JSON.stringify({ from: '1', to: '2', data: 'ping' });
+            const socket1 = new WebSocket(protocol + '//' + location.host + '/1');
+            const socket2 = new WebSocket(protocol + '//' + location.host + '/2');
+            let open = 0;
+            const timeout = setTimeout(() => {
+                testHtml.innerHTML = 'Connection timeout';
+            }, 30000);
+            function onopen() {
+                open++;
+                if (open === 2) {
+                    socket2.onmessage = function (message) {
+                        if (testmessage == message.data) {
+                            testHtml.innerHTML = 'Server works ok';
+                            clearTimeout(timeout);
+                        } else {
+                            console.log(message);
+                            testHtml.innerHTML = 'Something wrong...';
+                            clearTimeout(timeout);
+                        }
+                        socket1.close();
+                        socket2.close();
+                    };
+                    socket1.send(testmessage);
+                }
+            }
+            socket1.onopen = onopen;
+            socket2.onopen = onopen;
+            function onerror() {
+                testHtml.innerHTML = 'Something wrong...';
+                clearTimeout(timeout);
+            }
+            socket1.onerror = onerror;
+            socket2.onerror = onerror;
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const h1 = document.querySelector('h1');
+            const info = document.querySelector('#info');
+            const body = document.querySelector('.markdown-body');
+            body.insertBefore(h1, info);
+            setAddress();
+            checkWS();
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        });
+    })();
+</script>
+</body>
+
+</html>

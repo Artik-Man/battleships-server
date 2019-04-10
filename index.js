@@ -46,14 +46,29 @@ app.get('/info', function (req, res, next) {
 });
 
 app.get('/', function (req, res, next) {
-    fs.readFile(__dirname + '/README.md', 'utf8', function (err, text) {
-        const container = fs.readFileSync(__dirname + '/index.html');
-        const html = converter.makeHtml(text);
-        res.set('Content-Type', 'text/html')
-            .status(200)
-            .send(container + html + '</body></html>')
-            .end();
-        next();
+    const files = ['/index.html', '/README.md', '/footer.html'];
+    let remaining = files.length;
+    const map = {};
+    const callback = function (file, text) {
+        remaining--;
+        map[file] = text;
+        if (!remaining) {
+            const string = files.map(file => {
+                if (/\.md$/.test(file.toLowerCase())) {
+                    return converter.makeHtml(map[file]);
+                }
+                return map[file];
+            }).join('');
+            res.set('Content-Type', 'text/html')
+                .status(200)
+                .send(string)
+                .end();
+        }
+    };
+    files.forEach(function (file) {
+        fs.readFile(__dirname + file, 'utf8', (err, text) => {
+            callback(file, text);
+        });
     });
 });
 
