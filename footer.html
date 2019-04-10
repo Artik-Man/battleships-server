@@ -7,45 +7,38 @@
 
         async function setAddress() {
             document.getElementById('protocol').innerHTML = protocol;
-            document.getElementById('host').innerHTML = location.hostname;
-            document.getElementById('port').innerHTML = (await fetch('/login').then(resp => resp.json())).port;
+            document.getElementById('host').innerHTML = location.host;
+            // document.getElementById('port').innerHTML = (await fetch('/login').then(resp => resp.json())).port;
         }
 
         function checkWS() {
             const testHtml = document.getElementById('test');
-            const testmessage = JSON.stringify({ from: '1', to: '2', data: 'ping' });
-            const socket1 = new WebSocket(protocol + '//' + location.host + '/1');
-            const socket2 = new WebSocket(protocol + '//' + location.host + '/2');
-            let open = 0;
             const timeout = setTimeout(() => {
                 testHtml.innerHTML = 'Connection timeout';
             }, 30000);
-            function onopen() {
-                open++;
-                if (open === 2) {
-                    socket2.onmessage = function (message) {
-                        if (testmessage == message.data) {
-                            testHtml.innerHTML = 'Server works ok';
-                            clearTimeout(timeout);
-                        } else {
-                            console.log(message);
-                            testHtml.innerHTML = 'Something wrong...';
-                            clearTimeout(timeout);
-                        }
-                        socket1.close();
-                        socket2.close();
-                    };
-                    socket1.send(testmessage);
-                }
+            const socket = new WebSocket(protocol + '//' + location.host);
+            socket.onopen = function () {
+                socket.send(JSON.stringify({ to: 'SERVER', data: 'ping' }));
             }
-            socket1.onopen = onopen;
-            socket2.onopen = onopen;
-            function onerror() {
+            socket.onmessage = function (msg) {
+                const message = JSON.parse(msg.data);
+                clearTimeout(timeout);
+                if (message.error) {
+                    testHtml.innerHTML = 'Something wrong...';
+                    console.warn(message.error);
+                } else if (message.data && message.data.id) {
+                    testHtml.innerHTML = 'Server works ok';
+                    console.log('login success: ' + message.data.id);
+                } else if (message.data) {
+                    console.log('new message:', message.data);
+                }
+                socket.close();
+            }
+            socket.onerror = function (error) {
+                console.warn(error);
                 testHtml.innerHTML = 'Something wrong...';
                 clearTimeout(timeout);
             }
-            socket1.onerror = onerror;
-            socket2.onerror = onerror;
         }
 
         document.addEventListener('DOMContentLoaded', (event) => {
