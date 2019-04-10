@@ -33,10 +33,10 @@ const parseData = (message, from) => {
     }
 };
 
-app.use(function (req, res, next) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    next();
-});
+// app.use(function (req, res, next) {
+//     res.setHeader("Access-Control-Allow-Origin", "*");
+//     next();
+// });
 
 app.use(helmet());
 
