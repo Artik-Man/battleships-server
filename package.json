@@ -24,9 +24,10 @@
   "dependencies": {
     "express": "^4.16.4",
     "express-ws": "^4.0.0",
+    "fs": "0.0.1-security",
     "helmet": "^3.16.0",
-    "path": "^0.12.7",
-    "showdown": "^1.9.0"
+    "showdown": "^1.9.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {}
 }

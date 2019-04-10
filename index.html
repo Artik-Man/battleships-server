@@ -5,18 +5,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>WebSocket Post Server</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/3.0.1/github-markdown.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/vs.min.css">
   <style>
     body {
       margin: 0;
-      padding: 5vh 16px;
+      padding: 70px 0;
     }
 
     .markdown-body {
       width: 100%;
-      max-width: 882px;
+      max-width: 978px;
+      margin: 0 auto;
+      box-sizing: border-box;
+      border-radius: 0 0 3px 3px;
+      padding: 40px 48px;
+      border: 1px solid #d1d5da;
+      position: relative;
+    }
+
+    .box-header {
+      padding: 8px;
+      background-color: #f6f8fa;
+      border: 1px solid #d1d5da;
+      border-radius: 3px 3px 0 0;
+      position: absolute;
+      bottom: 100%;
+      left: -1px;
+      right: -1px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    b {
+      font-weight: 500;
     }
   </style>
 
@@ -24,8 +49,15 @@
 
 <body>
   <div class="markdown-body">
-    <p id="info">
-      Current address: <span id="protocol">wss:</span>//<span id="host">[host]</span>:<span id="port">[port]</span>/
-      <br>
-      <span id="test">Check server...</span>
-    </p>
+    <div class="box-header">
+      <div>
+        <svg class="octicon octicon-book" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true">
+          <path fill-rule="evenodd" d="M3 5h4v1H3V5zm0 3h4V7H3v1zm0 2h4V9H3v1zm11-5h-4v1h4V5zm0 2h-4v1h4V7zm0 2h-4v1h4V9zm2-6v9c0 .55-.45 1-1 1H9.5l-1 1-1-1H2c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1h5.5l1 1 1-1H15c.55 0 1 .45 1 1zm-8 .5L7.5 3H2v9h6V3.5zm7-.5H9.5l-.5.5V12h6V3z"></path>
+        </svg>
+        <b>README.md</b>
+      </div>
+      <div id="info">
+        Status: [<b id="test">Check server...</b>] &nbsp;&nbsp;&nbsp;
+        Current address: <b><span id="protocol">wss:</span>//<span id="host">[host]</span>:<span id="port">[port]</span>/</b>
+      </div>
+    </div>

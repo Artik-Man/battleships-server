@@ -6,16 +6,16 @@ const PARAMS = {
 const express = require('express');
 const expressWS = require('express-ws');
 const helmet = require('helmet');
-const path = require('path');
 const showdown = require('showdown');
 const fs = require('fs');
+const uuidv4 = require('uuid/v4');
 
 showdown.setFlavor('github');
 const converter = new showdown.Converter();
 const expressWs = expressWS(express());
 const app = expressWs.app;
 const server = app.listen(process.env.PORT || null);
-const port = JSON.stringify(server.address()['port']);
+const port = server.address()['port'];
 const connections = {};
 console.log('Server running on port: ' + port);
 
@@ -40,8 +40,13 @@ app.param('id', function (req, res, next, id) {
     return next();
 });
 
-app.get('/info', function (req, res, next) {
-    res.json({ port: port });
+app.get('/login', function (req, res, next) {
+    let id;
+    do {
+        id = uuidv4();
+    }
+    while (!!connections[id])
+    res.json({ port, id });
     next();
 });
 

@@ -8,7 +8,7 @@
         async function setAddress() {
             document.getElementById('protocol').innerHTML = protocol;
             document.getElementById('host').innerHTML = location.hostname;
-            document.getElementById('port').innerHTML = (await fetch('/info').then(resp => resp.json())).port;
+            document.getElementById('port').innerHTML = (await fetch('/login').then(resp => resp.json())).port;
         }
 
         function checkWS() {
@@ -49,10 +49,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', (event) => {
-            const h1 = document.querySelector('h1');
-            const info = document.querySelector('#info');
-            const body = document.querySelector('.markdown-body');
-            body.insertBefore(h1, info);
             setAddress();
             checkWS();
             document.querySelectorAll('pre code').forEach((block) => {

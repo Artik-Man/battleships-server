@@ -26,19 +26,12 @@ socket.send(message);
 const socket = new WebSocket('wss://[HOST]:[PORT]/[USER1]');
 
 socket.onmessage = function(resp) {
-    try {
-        const message = JSON.parse(resp.data);
-        console.log(message.data);
-    } catch(e) {
-        console.warn(message, e)
-    }
+    const message = JSON.parse(resp.data);
+    console.log("New message from: " + message.from + ": " + message.data);
 }
 
-function send(user, data){
-    const message = {
-        to: user,
-        data: data
-    };
+function send(to, data) {
+    const message = { to, data };
     socket.send(JSON.stringify(message));
 }
 
@@ -50,6 +43,12 @@ send(USER2, DATA);
 
 Response: [ HTML ] docs and autotest
 
-2. `GET /info`
+2. `GET /login`
 
-Response: [ JSON ] ```{ port: CURRENT_PORT }```
+Response: [ JSON ] 
+```javascript
+{
+    "id":   "YOUR_ID",
+    "port": "CURRENT_PORT"
+}
+```
