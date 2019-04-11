@@ -37,7 +37,7 @@
                 const message = JSON.parse(msg.data);
                 clearTimeout(timeout);
                 testHtml.innerHTML = 'Server works ok';
-                if (message.from === 'SERVER') {
+                if (message.from === 'SERVER' && message.status === 200) {
 
                     if (message.connections) {
                         console.log('ID: ' + message.to);
