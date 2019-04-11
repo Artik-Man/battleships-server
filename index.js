@@ -25,20 +25,10 @@ const broadcast = (message, without) => {
   const keys = db.getIDs()
   keys.forEach(key => {
     if (without !== key) {
-      message.to = key
-      sendMessage(message)
+      sendMessage({ ...message, to: key })
     }
   })
 }
-
-const firstMessage = () => ({
-  from: 'SERVER',
-  to: null,
-  data: null,
-  error: null,
-  status: 200,
-  connections: db.getIDs()
-})
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -71,9 +61,22 @@ app.ws('/', (ws, req, next) => {
   }
 
   console.log(`Connected: ${userID}`)
-  const firstMsg = firstMessage()
-  sendMessage({ ...firstMsg, to: userID })
-  broadcast(firstMsg, userID)
+  sendMessage({
+    from: 'SERVER',
+    to: userID,
+    data: null,
+    error: null,
+    status: 200,
+    connections: db.getIDs()
+  })
+  broadcast({
+    from: 'SERVER',
+    to: null,
+    data: null,
+    error: null,
+    status: 200,
+    connected: userID
+  }, userID)
 
   ws.on('message', (message) => {
     const msg = parseData(message, userID)
@@ -84,7 +87,14 @@ app.ws('/', (ws, req, next) => {
   function closeConnection() {
     db.remove(userID)
     console.log(`Close connection: ${userID}`)
-    broadcast(firstMessage())
+    broadcast({
+      from: 'SERVER',
+      to: null,
+      data: null,
+      error: null,
+      status: 200,
+      disconnected: userID
+    })
   }
 
   ws.on('close', closeConnection)
