@@ -36,10 +36,8 @@
             socket.onmessage = function (msg) {
                 const message = JSON.parse(msg.data);
                 clearTimeout(timeout);
-                if (message.error) {
-                    testHtml.innerHTML = message.error;
-                } else if (message.from === 'SERVER') {
-                    testHtml.innerHTML = 'Server works ok';
+                testHtml.innerHTML = 'Server works ok';
+                if (message.from === 'SERVER') {
 
                     if (message.connections) {
                         console.log('ID: ' + message.to);
@@ -53,7 +51,7 @@
                 } else if (message.status === 200) {
                     console.log('New message from [' + message.from + ']: ', message.data);
                 } else {
-                    console.warn(message.data);
+                    console.warn(message);
                 }
             }
         }
