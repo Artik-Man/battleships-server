@@ -7,6 +7,7 @@ https://ws-post.herokuapp.com/
 Repo:
 https://github.com/Artik-Man/ws-post-server
 
+
 ## Connection
 ### 1. Create connection to server
 ```javascript
@@ -25,7 +26,7 @@ You will get YOUR_ID in first message from the server:
 ```
 Other users will receive the same message
 
-### 2. Send message
+### 2. Sending message
 ```javascript
 const message = JSON.stringify({
     to:   "SOME_USER",
@@ -33,21 +34,28 @@ const message = JSON.stringify({
 });
 socket.send(message);
 ```
+
 ### 3. Messages format:
-```json
-{
-    "to": "YOUR_ID",
-    "from": "USER_ID",
-    "data": null,
-    "error": null,
-    "status": 200
+```typescript
+interface Message {
+    to: string;             // your ID
+    from: string;           // some user ID,
+    data: any;              // data
+    error: string;          // error message
+    status: number;         // HTTP status
+    
+    connected?: string;     // just connected user
+    disconneced?: string;   // just disconnected users
+    connections?: string[]; // connected users
 }
 ```
+
 ### 4. Status codes:
-200 - OK
-400 - Bad request
-404 - User not found
-423 - Connection error
+
+- 200 - OK 
+- 400 - Bad request 
+- 404 - User not found 
+- 423 - Connection error
 
 ## Simple chat
 ```javascript
