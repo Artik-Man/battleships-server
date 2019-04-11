@@ -1,6 +1,7 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/typescript.min.js"></script>
 <script>
     (() => {
         const protocol = location.protocol.replace('http', 'ws');
@@ -16,8 +17,21 @@
                 testHtml.innerHTML = 'Connection timeout';
             }, 30000);
             const socket = new WebSocket(protocol + '//' + location.host);
-            let id;
-            let connections = [];
+
+            window.send = function (to, data) {
+                const message = { to, data };
+                try {
+                    socket.send(JSON.stringify(message));
+                } catch (e) {
+                    console.warn(e);
+                }
+            }
+
+            socket.onerror = function (error) {
+                console.warn(error);
+                testHtml.innerHTML = 'Something wrong...';
+                clearTimeout(timeout);
+            }
 
             socket.onmessage = function (msg) {
                 const message = JSON.parse(msg.data);
@@ -25,24 +39,22 @@
                 if (message.error) {
                     testHtml.innerHTML = message.error;
                 } else if (message.from === 'SERVER') {
-                    id = message.to;
-                    console.log('ID: ' + id);
-                    if (message.data && message.data.connections) {
-                        connections = message.data.connections;
-                        console.log('USERS:', connections);
-                    }
                     testHtml.innerHTML = 'Server works ok';
+
+                    if (message.connections) {
+                        console.log('ID: ' + message.to);
+                        console.log('USERS:', message.connections);
+                    } else if (message.connected) {
+                        console.log('Connected: ', message.connected);
+                    } else if (message.disconnected) {
+                        console.log('Disconnected: ', message.disconnected);
+                    }
+
                 } else if (message.status === 200) {
-                    console.log('new message:', message.data);
+                    console.log('New message from [' + message.from + ']: ', message.data);
                 } else {
                     console.warn(message.data);
                 }
-                socket.close();
-            }
-            socket.onerror = function (error) {
-                console.warn(error);
-                testHtml.innerHTML = 'Something wrong...';
-                clearTimeout(timeout);
             }
         }
 
