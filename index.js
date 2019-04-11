@@ -31,6 +31,15 @@ const broadcast = (message, without) => {
   })
 }
 
+const firstMessage = () => ({
+  from: 'SERVER',
+  to: null,
+  data: null,
+  error: null,
+  status: 200,
+  connections: db.getIDs()
+})
+
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
   next()
@@ -61,18 +70,10 @@ app.ws('/', (ws, req, next) => {
     return
   }
 
-  const firstMessage = () => ({
-    from: 'SERVER',
-    to: null,
-    data: null,
-    error: null,
-    status: 200,
-    connections: db.getIDs()
-  })
-
-  sendMessage(firstMessage())
   console.log(`Connected: ${userID}`)
-  broadcast(firstMessage(), userID)
+  const firstMsg = firstMessage()
+  sendMessage({ ...firstMsg, to: userID })
+  broadcast(firstMsg, userID)
 
   ws.on('message', (message) => {
     const msg = parseData(message, userID)
