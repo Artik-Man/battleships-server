@@ -1,14 +1,11 @@
 # WebSocket Post Server
 
-## Links
-Server:
-https://ws-post.herokuapp.com/
+Server: https://ws-post.herokuapp.com/
 
-Repo:
-https://github.com/Artik-Man/ws-post-server
+Repo: https://github.com/Artik-Man/ws-post-server
 
 
-## Connection
+## How to work with it?
 ### 1. Create connection to server
 ```javascript
 const socket = new WebSocket('wss://ws-post.herokuapp.com/');
@@ -56,6 +53,7 @@ interface Message {
 - 400 - Bad request 
 - 404 - User not found 
 - 423 - Connection error
+
 
 ## Simple chat
 ```javascript
