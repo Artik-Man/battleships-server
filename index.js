@@ -8,7 +8,7 @@ const checkMessage = require('./lib/message')
 
 const expressWs = expressWS(express())
 const app = expressWs.app
-app.listen(process.env.PORT || null || 3000)
+app.listen(process.env.PORT || null)
 
 const sendMessage = (msg) => {
   const connection = db.get(msg.to)
