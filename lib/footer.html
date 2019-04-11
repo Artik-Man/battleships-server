@@ -8,7 +8,6 @@
         async function setAddress() {
             document.getElementById('protocol').innerHTML = protocol;
             document.getElementById('host').innerHTML = location.host;
-            // document.getElementById('port').innerHTML = (await fetch('/login').then(resp => resp.json())).port;
         }
 
         function checkWS() {
@@ -17,20 +16,26 @@
                 testHtml.innerHTML = 'Connection timeout';
             }, 30000);
             const socket = new WebSocket(protocol + '//' + location.host);
-            socket.onopen = function () {
-                socket.send(JSON.stringify({ to: 'SERVER', data: 'ping' }));
-            }
+            let id;
+            let connections = [];
+
             socket.onmessage = function (msg) {
                 const message = JSON.parse(msg.data);
                 clearTimeout(timeout);
                 if (message.error) {
-                    testHtml.innerHTML = 'Something wrong...';
-                    console.warn(message.error);
-                } else if (message.data && message.data.id) {
+                    testHtml.innerHTML = message.error;
+                } else if (message.from === 'SERVER') {
+                    id = message.to;
+                    console.log('ID: ' + id);
+                    if (message.data && message.data.connections) {
+                        connections = message.data.connections;
+                        console.log('USERS:', connections);
+                    }
                     testHtml.innerHTML = 'Server works ok';
-                    console.log('login success: ' + message.data.id);
-                } else if (message.data) {
+                } else if (message.status === 200) {
                     console.log('new message:', message.data);
+                } else {
+                    console.warn(message.data);
                 }
                 socket.close();
             }

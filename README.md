@@ -8,41 +8,46 @@ Repo:
 https://github.com/Artik-Man/ws-post-server
 
 ## Connection
-1. Create connection to server
+### 1. Create connection to server
 ```javascript
 const socket = new WebSocket('wss://ws-post.herokuapp.com/');
 ```
-You will get your ID in first message from server:
+You will get YOUR_ID in first message from the server:
 ```json
 {
-    "from":"SERVER",
-    "id":  "YOUR_ID"
+    "to": "YOUR_ID",
+    "from": "SERVER",
+    "data": null,
+    "error": null,
+    "status": 200,
+    "connections": ["USER1_ID", "USER2_ID", "..."]
 }
 ```
-2. Get connections
-```javascript
-const message = JSON.stringify({
-    to:   "SERVER",
-    data: "connections"
-});
-socket.send(message);
-```
-You will get current connections:
-```json
-{
-    "from":"SERVER",
-    "connections":  [USER1_ID, USER2_ID]
-}
-```
+Other users will receive the same message
 
-3. Send message
+### 2. Send message
 ```javascript
 const message = JSON.stringify({
-    to:   SOME_USER,
-    data: DATA
+    to:   "SOME_USER",
+    data: "SOME_DATA"
 });
 socket.send(message);
 ```
+### 3. Messages format:
+```json
+{
+    "to": "YOUR_ID",
+    "from": "USER_ID",
+    "data": null,
+    "error": null,
+    "status": 200
+}
+```
+### 4. Status codes:
+200 - OK
+400 - Bad request
+404 - User not found
+423 - Connection error
 
 ## Simple chat
 ```javascript
@@ -60,15 +65,11 @@ function startChat() {
     });
 }
 
-socket.onopen = function() {
-    send('SERVER', "connections");
-}
-
 socket.onmessage = function(resp) {
     const message = JSON.parse(resp.data);
     if (resp.data.from === 'SERVER') {
-        if (resp.data.connections) {
-            users = resp.data.connections;
+        if (resp.connections) {
+            users = resp.connections;
             startChat();
         }
     } else {
