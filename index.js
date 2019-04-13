@@ -8,7 +8,7 @@ const checkMessage = require('./lib/message')
 
 const expressWs = expressWS(express())
 const app = expressWs.app
-app.listen(process.env.PORT || null)
+app.listen(process.env.PORT || 3000)
 
 const sendMessage = (msg) => {
   const connection = db.get(msg.to)
@@ -44,7 +44,8 @@ app.get('/', (req, res) => {
 })
 
 app.ws('/', (ws, req, next) => {
-  const userID = db.set(ws)
+  const xid = req.headers['sec-websocket-protocol'] || null;
+  const userID = db.set(ws, xid)
 
   if (!userID) {
     const resp = {
